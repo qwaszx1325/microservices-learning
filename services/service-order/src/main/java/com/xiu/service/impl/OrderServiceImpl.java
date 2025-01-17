@@ -26,7 +26,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order createOrder(Long productId, Long userId) {
-        Product product = getProductFromRemotWithLoadBalance(productId);
+        Product product = getProductFromRemotWithLoadBalanceAnnotation(productId);
         Order order = new Order();
         order.setId(1L);
 
@@ -39,14 +39,23 @@ public class OrderServiceImpl implements OrderService {
 
         return order;
     }
-
-    private Product getProductFromRemotWithLoadBalance(Long productId) {
-        ServiceInstance choose = loadBalancerClient.choose("service-product");
-
-        String url = "http://" + choose.getHost() + ":" + choose.getPort() + "/product/" + productId;
-        log.info("遠程調用請求: {}",url);
+    // 使用註解的負載均衡的方式
+    private Product getProductFromRemotWithLoadBalanceAnnotation(Long productId) {
+        // service-product 會被動態替換剛剛的寫法
+        String url = "http://service-product/product/" + productId;
+        //  
+//      log.info("遠程調用請求: {}",url);
         return restTemplate.getForObject(url, Product.class);
     }
+
+    // 未使用註解負載均衡的方式
+//    private Product getProductFromRemotWithLoadBalance(Long productId) {
+//        ServiceInstance choose = loadBalancerClient.choose("service-product");
+//
+//        String url = "http://" + choose.getHost() + ":" + choose.getPort() + "/product/" + productId;
+//        log.info("遠程調用請求: {}",url);
+//        return restTemplate.getForObject(url, Product.class);
+//    }
 
     // 沒有均合負載功能
 //    private Product getProductFromRemot(Long productId) {
