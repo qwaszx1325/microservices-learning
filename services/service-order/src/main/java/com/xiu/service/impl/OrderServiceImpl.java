@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,10 +22,11 @@ public class OrderServiceImpl implements OrderService {
 
     private  final DiscoveryClient discoveryClient;
     private final RestTemplate restTemplate;
+    private final LoadBalancerClient loadBalancerClient;
 
     @Override
     public Order createOrder(Long productId, Long userId) {
-        Product product = getProductFromRemot(productId);
+        Product product = getProductFromRemotWithLoadBalance(productId);
         Order order = new Order();
         order.setId(1L);
 
@@ -38,15 +40,24 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
-    private Product getProductFromRemot(Long productId) {
-        List<ServiceInstance> instances = discoveryClient.getInstances("service-product");
-        ServiceInstance instance = instances.get(0);
+    private Product getProductFromRemotWithLoadBalance(Long productId) {
+        ServiceInstance choose = loadBalancerClient.choose("service-product");
 
-        String url = "http://" + instance.getHost() + ":" + instance.getPort() + "/product/" + productId;
+        String url = "http://" + choose.getHost() + ":" + choose.getPort() + "/product/" + productId;
         log.info("遠程調用請求: {}",url);
-        Product product = restTemplate.getForObject(url, Product.class);
-
-        return product;
+        return restTemplate.getForObject(url, Product.class);
     }
+
+    // 沒有均合負載功能
+//    private Product getProductFromRemot(Long productId) {
+//        List<ServiceInstance> instances = discoveryClient.getInstances("service-product");
+//        ServiceInstance instance = instances.get(0);
+//
+//        String url = "http://" + instance.getHost() + ":" + instance.getPort() + "/product/" + productId;
+//        log.info("遠程調用請求: {}",url);
+//        Product product = restTemplate.getForObject(url, Product.class);
+//
+//        return product;
+//    }
 
 }
