@@ -43,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
     private Product getProductFromRemotWithLoadBalanceAnnotation(Long productId) {
         // service-product 會被動態替換剛剛的寫法
         String url = "http://service-product/product/" + productId;
-        //  
+        //
 //      log.info("遠程調用請求: {}",url);
         return restTemplate.getForObject(url, Product.class);
     }
