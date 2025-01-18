@@ -1,6 +1,7 @@
 package com.xiu.controller;
 
 import com.xiu.order.entity.Order;
+import com.xiu.properties.OrderProperties;
 import com.xiu.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,19 +12,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RefreshScope
 public class OrderController {
 
     private final OrderService orderService;
 
-    @Value("${order.timeout}")
-    String orderTimeout;
-    @Value("${order.auto-confirm}")
-    String orderAutoConfirm;
+    private final OrderProperties orderProperties;
+
 
     @GetMapping("/config")
     public String config(){
-        return "order.timeout="+orderTimeout+": order.auto-confirm="+orderAutoConfirm;
+        String timeout = orderProperties.getTimeout();
+        String autoConfirm = orderProperties.getAutoConfirm();
+        return "order.timeout="+timeout+": order.auto-confirm="+autoConfirm;
     }
 
     @GetMapping("/create")
