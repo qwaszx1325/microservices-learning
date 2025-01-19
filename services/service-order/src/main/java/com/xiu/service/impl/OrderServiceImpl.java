@@ -1,5 +1,6 @@
 package com.xiu.service.impl;
 
+import com.xiu.feign.ProductFeignClient;
 import com.xiu.order.entity.Order;
 import com.xiu.product.entity.Product;
 import com.xiu.service.OrderService;
@@ -23,10 +24,12 @@ public class OrderServiceImpl implements OrderService {
     private  final DiscoveryClient discoveryClient;
     private final RestTemplate restTemplate;
     private final LoadBalancerClient loadBalancerClient;
+    
+    private  final ProductFeignClient productFeignClient;
 
     @Override
     public Order createOrder(Long productId, Long userId) {
-        Product product = getProductFromRemotWithLoadBalanceAnnotation(productId);
+        Product product = productFeignClient.getProductById(productId);
         Order order = new Order();
         order.setId(1L);
 
