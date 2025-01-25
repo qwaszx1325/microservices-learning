@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(value = "service-product")
 public interface ProductFeignClient {
 
+    // 可以直接copy呼叫的controller方法
     @GetMapping("/product/{id}")
     Product getProductById(@PathVariable("id")Long id);
 }
