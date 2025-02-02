@@ -20,6 +20,7 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(new BigDecimal("99"));
         product.setNum(2);
 
+        System.out.println("test");
         try {
             TimeUnit.SECONDS.sleep(100);
         } catch (InterruptedException e) {
